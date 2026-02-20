@@ -21,7 +21,7 @@ flowchart TD
   API -->|/api/retrieve| R[Hybrid retrieve + RRF fuse]
   V --> R
   B --> R
-  API -->|/api/answer| L[Gemini chat (grounded answer)]
+  API -->|/api/answer| L["Gemini chat (grounded answer)"]
   R --> L
   L --> UI
 ```
