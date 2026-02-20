@@ -52,27 +52,27 @@ This system is an **information retrieval pipeline first** and **generation pipe
 ```mermaid
 flowchart LR
   subgraph Ingestion[Offline ingestion]
-    A[Raw docs\nTXT/MD/DOCX/PDF] --> B[Parse & normalize\n(clean, structure)]
-    B --> C[Chunker\n(fixed/recursive/semantic)]
-    C --> D[Embedding\n(dense; optional sparse)]
-    C --> S[BM25/Sparse pipeline\n(optional)]
+    A["Raw docs<br/>TXT/MD/DOCX/PDF"] --> B["Parse & normalize<br/>(clean, structure)"]
+    B --> C["Chunker<br/>(fixed/recursive/semantic)"]
+    C --> D["Embedding<br/>(dense; optional sparse)"]
+    C --> S["BM25/Sparse pipeline<br/>(optional)"]
     D --> V[(Vector index)]
     S --> K[(Sparse index)]
-    B --> M[(Metadata store\nACL, doc_id, section, timestamps)]
-    B --> H[Optional: Hierarchical summaries\n(doc/section/community)]
+    B --> M[("Metadata store<br/>ACL, doc_id, section, timestamps")]
+    B --> H["Optional: Hierarchical summaries<br/>(doc/section/community)"]
     H --> SI[(Summary index)]
   end
 
   subgraph Query[Online query flow]
-    Q[User query] --> R[Query router\n(intent + constraints)]
+    Q[User query] --> R["Query router<br/>(intent + constraints)"]
     R --> QW[Query rewrite / multi-query]
-    QW --> VR[Candidate retrieval\nDense + Sparse + Summary index]
-    VR --> F[Fusion\nRRF / weighted]
-    F --> RR[Rerank\ncross-encoder or late-interaction]
-    RR --> CB[Context builder\n(dedupe, diversify, expand)]
-    CB --> CP[Compression\n(extractive/abstractive/prompt)]
-    CP --> L[LLM generate\n(grounded + citations)]
-    L --> O[Answer / summary\n+ citations + confidence]
+    QW --> VR["Candidate retrieval<br/>Dense + Sparse + Summary index"]
+    VR --> F["Fusion<br/>RRF / weighted"]
+    F --> RR["Rerank<br/>cross-encoder or late-interaction"]
+    RR --> CB["Context builder<br/>(dedupe, diversify, expand)"]
+    CB --> CP["Compression<br/>(extractive/abstractive/prompt)"]
+    CP --> L["LLM generate<br/>(grounded + citations)"]
+    L --> O["Answer / summary<br/>+ citations + confidence"]
   end
 
   V --> VR
