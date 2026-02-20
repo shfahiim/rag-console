@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>RAG Search Console</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+  </head>
+  <body>
+    <div class="layout" id="main-layout">
+      <!-- Left Sidebar -->
+      <aside class="sidebar">
+        <div class="sidebar-head">
+          <h1>RAG Console</h1>
+          <p>Intelligent Document Search</p>
+        </div>
+
+        <section class="card-section">
+          <h2>Indexed File</h2>
+          <p id="indexed-file" class="indexed-file-text muted-foreground">None</p>
+          <p id="chunk-count" class="chunk-count-text muted-foreground">Chunks: 0</p>
+        </section>
+
+        <section class="card-section">
+          <h2>Ingestion</h2>
+          <div class="progress-track ingestion-progress-track">
+            <div id="upload-progress-bar" class="progress-fill"></div>
+          </div>
+          <div class="ingestion-progress-row">
+            <p id="upload-progress-message" class="upload-progress-message muted-foreground">Waiting...</p>
+            <span id="upload-percent-label" class="badge">0%</span>
+          </div>
+          
+          <ul id="upload-steps" class="upload-steps">
+            <li data-step="uploading"><span class="step-dot"></span><strong>Uploading</strong></li>
+            <li data-step="uploaded"><span class="step-dot"></span><strong>Received</strong></li>
+            <li data-step="extracting"><span class="step-dot"></span><strong>Extracting</strong></li>
+            <li data-step="pipeline"><span class="step-dot"></span><strong>Setup</strong></li>
+            <li data-step="chunking"><span class="step-dot"></span><strong>Chunking</strong></li>
+            <li data-step="embedding"><span class="step-dot"></span><strong>Embedding</strong></li>
+            <li data-step="indexing"><span class="step-dot"></span><strong>Indexing</strong></li>
+            <li data-step="complete"><span class="step-dot"></span><strong>Ready</strong></li>
+          </ul>
+        </section>
+
+        <details class="upload-collapse">
+          <summary>Upload New Source</summary>
+          <form id="upload-form" class="upload-form">
+            <label for="file-input">Select File</label>
+            <input
+              id="file-input"
+              type="file"
+              name="file"
+              accept=".txt,.md,.csv,.json,.html,.htm,.xml,.pdf,.docx"
+              required
+            />
+            <button type="submit">Index Document</button>
+            <small class="upload-note muted-foreground">Max: {{ max_upload_mb }} MB</small>
+          </form>
+        </details>
+      </aside>
+
+      <!-- Main Workspace (Center) -->
+      <main class="workspace">
+        <div class="workspace-content">
+          <!-- Answer Panel -->
+          <section class="panel">
+            <div class="panel-head">
+              <h3>Response</h3>
+            </div>
+            <div id="answer" class="answer answer-prose" role="article" aria-live="polite">
+              <p class="muted-foreground">Ask anything about the indexed file to see a grounded answer.</p>
+            </div>
+            
+            <div class="panel-head panel-subhead">
+              <h3>Citations</h3>
+            </div>
+            <ul id="sources" class="sources"></ul>
+
+            <!-- Evidence Preview -->
+            <section id="evidence-preview" class="evidence-preview" hidden>
+              <div class="panel-head">
+                <div>
+                  <strong id="evidence-title" class="evidence-title">Evidence Preview</strong>
+                  <div id="evidence-meta" class="evidence-meta muted-foreground"></div>
+                </div>
+                <button id="evidence-close" type="button" class="ghost evidence-close">Close</button>
+              </div>
+              <pre id="evidence-text" class="evidence-text"></pre>
+            </section>
+          </section>
+        </div>
+
+        <footer class="workspace-footer">
+          <div class="workspace-footer-inner">
+            <form id="query-form" class="query-bar">
+              <input
+                id="query-input"
+                type="text"
+                name="query"
+                placeholder="Ask a question about your document..."
+                required
+              />
+              <button id="query-button" type="submit">Send</button>
+            </form>
+          </div>
+        </footer>
+      </main>
+
+      <!-- Right Sidebar (Similarity Matches) -->
+      <aside class="right-sidebar" id="right-sidebar">
+        <div class="panel-head matches-head">
+          <h3>Similarity Matches</h3>
+          <span class="badge">Top 20</span>
+        </div>
+        <!-- This is the only element with id="matches" -->
+        <div id="matches" class="matches">
+          <p class="matches-placeholder muted-foreground">Relevant document chunks will appear here.</p>
+        </div>
+      </aside>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}" defer></script>
+  </body>
+</html>
