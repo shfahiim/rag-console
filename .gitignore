@@ -21,6 +21,7 @@ ENV/
 
 # Uploads / generated artifacts
 uploads/
+qdrant_storage/
 
 # OS / editor
 .DS_Store

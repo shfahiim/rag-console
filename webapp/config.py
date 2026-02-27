@@ -23,6 +23,7 @@ class AppConfig:
     chunk_overlap_tokens: int
     gemini_embed_model: str
     gemini_chat_model: str
+    max_embed_requests_per_minute: int
     flask_host: str
     flask_port: int
     flask_debug: bool
@@ -53,6 +54,7 @@ def load_config_from_env() -> AppConfig:
         chunk_overlap_tokens=int(os.getenv("CHUNK_OVERLAP_TOKENS", "32")),
         gemini_embed_model=os.getenv("GEMINI_EMBED_MODEL", "text-embedding-004"),
         gemini_chat_model=os.getenv("GEMINI_CHAT_MODEL", "gemini-2.5-flash"),
+        max_embed_requests_per_minute=int(os.getenv("MAX_EMBED_REQUESTS_PER_MINUTE", "0")),
         flask_host=os.getenv("FLASK_HOST", "0.0.0.0"),
         flask_port=int(os.getenv("FLASK_PORT", "5000")),
         flask_debug=os.getenv("FLASK_DEBUG", "0") == "1",

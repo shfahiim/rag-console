@@ -25,6 +25,7 @@ import json
 import time
 import hashlib
 from dataclasses import dataclass
+from threading import Lock
 from typing import Any, Callable, Dict, Iterable, List, Optional, Sequence, Tuple, Protocol
 
 import numpy as np
@@ -229,12 +230,16 @@ class GeminiEmbedder:
         output_dimensionality: Optional[int] = None,
         batch_size: int = 64,
         timeout_s: float = 60.0,
+        max_requests_per_minute: int = 0,
     ) -> None:
         self.model = model
         self.output_dimensionality = output_dimensionality
         self.batch_size = batch_size
         self.timeout_s = timeout_s
+        self.max_requests_per_minute = int(max_requests_per_minute)
         self._task_type: Optional[str] = None  # set per call
+        self._rate_lock = Lock()
+        self._request_timestamps: List[float] = []
 
         try:
             from google import genai  # type: ignore
@@ -244,6 +249,29 @@ class GeminiEmbedder:
             ) from e
 
         self._client = genai.Client()
+
+    def _throttle_request_if_needed(self) -> None:
+        if self.max_requests_per_minute <= 0:
+            return
+        # Sliding-window limiter per embedder instance.
+        with self._rate_lock:
+            now = time.time()
+            window_start = now - 60.0
+            self._request_timestamps = [t for t in self._request_timestamps if t >= window_start]
+            if len(self._request_timestamps) < self.max_requests_per_minute:
+                self._request_timestamps.append(now)
+                return
+            earliest = min(self._request_timestamps) if self._request_timestamps else now
+            sleep_s = max(0.0, (earliest + 60.0) - now)
+
+        if sleep_s > 0:
+            time.sleep(sleep_s)
+
+        with self._rate_lock:
+            now2 = time.time()
+            window_start2 = now2 - 60.0
+            self._request_timestamps = [t for t in self._request_timestamps if t >= window_start2]
+            self._request_timestamps.append(now2)
 
     def embed(
         self,
@@ -262,6 +290,7 @@ class GeminiEmbedder:
                 config_kwargs["output_dimensionality"] = self.output_dimensionality
 
             try:
+                self._throttle_request_if_needed()
                 resp = self._client.models.embed_content(
                     model=self.model,
                     contents=batch,
